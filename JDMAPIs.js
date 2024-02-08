@@ -1,6 +1,8 @@
 /* Imports */
 const express = require('express');
+const apicache = require('apicache');
 require('dotenv').config();
+const cache = apicache.middleware;
 
 const dbConfig = {
     user: process.env.DB_USER,
@@ -17,6 +19,7 @@ const connection = mysql.createConnection(dbConfig)
 connection.connect();
 
 app.use(express.json());
+app.use(cache('10 minutes'));
 
 /* EndPoints */
 
