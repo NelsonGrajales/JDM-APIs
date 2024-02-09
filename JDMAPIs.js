@@ -23,22 +23,34 @@ app.use(cache('10 minutes'));
 
 /* EndPoints */
 
-app.get('/v1/autos', (req,res) => {
+app.get('/v1/autos',  (req,res) => {
+  const { nombreAuto } = req.query;
+    const filter = `SELECT * FROM Autos WHERE Modelo = "${nombreAuto}"`;
     const query = `
     SELECT Autos.AutoID, Autos.Modelo, Autos.AnioLanzamiento,
            Motores.NombreMotor,Marcas.NombreMarca
     FROM Autos
     JOIN Motores ON Autos.MotorID = Motores.MotorID
     JOIN Marcas ON Autos.MarcaID = Marcas.MarcaID`;
-  
-  connection.query(query, (error, results) => {
-    if (error) {
-      console.error('Error en la consulta:', error);
-      res.status(500).send('Error en el servidor');
-      return;
-    }
-    res.json(results);
-  });
+  if(nombreAuto){
+    connection.query(filter, (error,results) => {
+      if (error) {
+        console.error('Error en la consulta:', error);
+        res.status(500).send('Error en el servidor');
+        return;
+      }
+      res.json(results);
+    })
+  } else {
+    connection.query(query, (error, results) => {
+      if (error) {
+        console.error('Error en la consulta:', error);
+        res.status(500).send('Error en el servidor');
+        return;
+      }
+      res.json(results);
+    });
+  }
 });
 
 app.get('/v1/autos/:id', (req,res) => {
