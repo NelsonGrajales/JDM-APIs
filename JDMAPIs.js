@@ -61,11 +61,29 @@ app.get('/v1/autos/:id', (req,res) => {
 });
 
 app.get('/v1/marcas', (req,res) => {
-
+  const query = `SELECT * FROM Marcas`;
+  
+  connection.query(query, (error, results) => {
+    if (error) {
+      console.error('Error en la consulta:', error);
+      res.status(500).send('Error en el servidor');
+      return;
+    }
+    res.json(results);
+  });
 });
 
 app.get('/v1/motores', (req,res) => {
-
+  const query = `SELECT * FROM Motores`;
+  
+  connection.query(query, (error, results) => {
+    if (error) {
+      console.error('Error en la consulta:', error);
+      res.status(500).send('Error en el servidor');
+      return;
+    }
+    res.json(results);
+  });
 });
 
 /* App Started */
