@@ -3,7 +3,7 @@ const express = require('express');
 const apicache = require('apicache');
 require('dotenv').config();
 const cache = apicache.middleware;
-
+const Port = process.env.DB_PORT ?? 3000;
 const dbConfig = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -101,5 +101,4 @@ app.get('/v1/motores', (req,res) => {
 
 /* App Started */
 
-app.listen(3000, () => console.log('server started'));
-
+app.listen(Port, () => console.log(`Servidor iniciado en el puerto ${Port}`));
