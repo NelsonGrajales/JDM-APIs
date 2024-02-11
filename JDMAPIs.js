@@ -25,7 +25,7 @@ app.use(cache('10 minutes'));
 
 app.get('/v1/autos',  (req,res) => {
   const { nombreAuto } = req.query;
-    const filter = `SELECT * FROM Autos WHERE Modelo = "${nombreAuto}"`;
+    const filter = 'SELECT * FROM Autos WHERE Modelo LIKE ?' ;
     const query = `
     SELECT Autos.AutoID, Autos.Modelo, Autos.AnioLanzamiento,
            Motores.NombreMotor,Marcas.NombreMarca
@@ -33,7 +33,7 @@ app.get('/v1/autos',  (req,res) => {
     JOIN Motores ON Autos.MotorID = Motores.MotorID
     JOIN Marcas ON Autos.MarcaID = Marcas.MarcaID`;
   if(nombreAuto){
-    connection.query(filter, (error,results) => {
+    connection.query(filter, [`%${nombreAuto}%`], (error,results) => {
       if (error) {
         console.error('Error en la consulta:', error);
         res.status(500).send('Error en el servidor');
@@ -55,14 +55,15 @@ app.get('/v1/autos',  (req,res) => {
 
 app.get('/v1/autos/:id', (req,res) => {
     const  autoId  = req.params.id;
-    const query = `
-       SELECT Autos.AutoID, Autos.Modelo, Autos.AnioLanzamiento,
-       Motores.NombreMotor,Marcas.NombreMarca
-       FROM Autos
-       JOIN Motores ON Autos.MotorID = Motores.MotorID
-       JOIN Marcas ON Autos.MarcaID = Marcas.MarcaID WHERE AutoID = ${autoId}`;
+    const query = 
+    "SELECT Autos.AutoID, Autos.Modelo, Autos.AnioLanzamiento, " +
+    "Motores.NombreMotor, Marcas.NombreMarca " +
+    "FROM Autos " +
+    "JOIN Motores ON Autos.MotorID = Motores.MotorID " +
+    "JOIN Marcas ON Autos.MarcaID = Marcas.MarcaID " +
+    "WHERE AutoID = ?";
 
-    connection.query(query, (error, results) => {
+    connection.query(query,autoId, (error, results) => {
         if (error) {
             console.error('Error en la consulta:', error);
             res.status(500).send('Error en el servidor');
