@@ -1,102 +1,104 @@
 /* Imports */
 const express = require('express');
 const apicache = require('apicache');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 const cache = apicache.middleware;
 const Port = process.env.DB_PORT ?? 3000;
-const dbConfig = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-}
-const mysql = require('mysql');
+
+const url = process.env.DB_URL;
+const key = process.env.DB_KEY;
 
 const app = express();
 
-const connection = mysql.createConnection(dbConfig)
+const supabase = createClient(url, key);
 
-connection.connect();
-
+app.disable('x-powered-by');
 app.use(express.json());
 app.use(cache('10 minutes'));
 
 /* EndPoints */
 
-app.get('/v1/autos',  (req,res) => {
+app.get('/v1/autos',  async(req,res) => {
   const { nombreAuto } = req.query;
-    const filter = 'SELECT * FROM Autos WHERE Modelo LIKE ?' ;
-    const query = `
-    SELECT Autos.AutoID, Autos.Modelo, Autos.AnioLanzamiento,
-           Motores.NombreMotor,Marcas.NombreMarca
-    FROM Autos
-    JOIN Motores ON Autos.MotorID = Motores.MotorID
-    JOIN Marcas ON Autos.MarcaID = Marcas.MarcaID`;
-  if(nombreAuto){
-    connection.query(filter, [`%${nombreAuto}%`], (error,results) => {
-      if (error) {
-        console.error('Error en la consulta:', error);
-        res.status(500).send('Error en el servidor');
-        return;
-      }
-      res.json(results);
-    })
-  } else {
-    connection.query(query, (error, results) => {
-      if (error) {
-        console.error('Error en la consulta:', error);
-        res.status(500).send('Error en el servidor');
-        return;
-      }
-      res.json(results);
-    });
+
+  try {
+    let query = supabase
+    .from('autos')
+    .select('*,marcaid:marcas (nombremarca), motorid:motores(nombremotor)')
+
+    if(nombreAuto){
+      query = query.like('modelo', `%${nombreAuto}%`);
+    }
+
+    const { data: autos, error } = await query;
+
+    if (error) {
+      console.error('Error al realizar la consulta:', error);
+      throw error;
+    }
+
+    res.json(autos);
+  } catch (error) {
+    console.error('Error al realizar la consulta:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 
-app.get('/v1/autos/:id', (req,res) => {
+app.get('/v1/autos/:id', async (req,res) => {
     const  autoId  = req.params.id;
-    const query = 
-    "SELECT Autos.AutoID, Autos.Modelo, Autos.AnioLanzamiento, " +
-    "Motores.NombreMotor, Marcas.NombreMarca " +
-    "FROM Autos " +
-    "JOIN Motores ON Autos.MotorID = Motores.MotorID " +
-    "JOIN Marcas ON Autos.MarcaID = Marcas.MarcaID " +
-    "WHERE AutoID = ?";
-
-    connection.query(query,autoId, (error, results) => {
-        if (error) {
-            console.error('Error en la consulta:', error);
-            res.status(500).send('Error en el servidor');
-            return;
-          }
-          res.json(results);
-    })
+    try {
+      const { data: autos, error } = await supabase
+        .from('autos')
+        .select('*')
+        .eq('autoid', autoId)
+  
+      if (error) {
+        console.error('Error al realizar la consulta:', error);
+        throw error;
+      }
+  
+      res.json(autos);
+    } catch (error) {
+      console.error('Error al realizar la consulta:', error.message);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
 });
 
-app.get('/v1/marcas', (req,res) => {
-  const query = `SELECT * FROM Marcas`;
-  
-  connection.query(query, (error, results) => {
+app.get('/v1/marcas', async (req,res) => {
+  try {
+    const { data: marcas, error } = await supabase
+      .from('marcas')
+      .select('*')
+
     if (error) {
-      console.error('Error en la consulta:', error);
-      res.status(500).send('Error en el servidor');
-      return;
+      console.error('Error al realizar la consulta:', error);
+      throw error;
     }
-    res.json(results);
-  });
+
+    res.json(marcas);
+  } catch (error) {
+    console.error('Error al realizar la consulta:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
-app.get('/v1/motores', (req,res) => {
-  const query = `SELECT * FROM Motores`;
-  
-  connection.query(query, (error, results) => {
+app.get('/v1/motores', async (req,res) => {
+  try {
+    const { data: motores, error } = await supabase
+      .from('motores')
+      .select('*')
+
     if (error) {
-      console.error('Error en la consulta:', error);
-      res.status(500).send('Error en el servidor');
-      return;
+      console.error('Error al realizar la consulta:', error);
+      throw error;
     }
-    res.json(results);
-  });
+
+    res.json(motores);
+  } catch (error) {
+    console.error('Error al realizar la consulta:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 /* App Started */
