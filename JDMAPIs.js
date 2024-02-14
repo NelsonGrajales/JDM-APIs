@@ -23,9 +23,7 @@ app.get('/v1/autos',  async(req,res) => {
   const { nombreAuto } = req.query;
 
   try {
-    let query = supabase
-    .from('autos')
-    .select('*,marcaid:marcas (nombremarca), motorid:motores(nombremotor)')
+    let query = supabase.from('autos').select('*');
 
     if(nombreAuto){
       query = query.like('modelo', `%${nombreAuto}%`);
