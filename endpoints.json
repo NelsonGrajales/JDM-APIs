@@ -1,0 +1,7 @@
+
+    {
+      "autos": "https://jdmapi.onrender.com/v1/autos/",
+      "marcas": "https://jdmapi.onrender.com/v1/marcas",
+      "motores": "https://jdmapi.onrender.com/v1/motores"
+    }
+  

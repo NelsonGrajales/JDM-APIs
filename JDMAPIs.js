@@ -1,6 +1,7 @@
 /* Imports */
 const express = require('express');
 const apicache = require('apicache');
+const fs = require('fs');
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 const cache = apicache.middleware;
@@ -18,6 +19,17 @@ app.use(express.json());
 app.use(cache('10 minutes'));
 
 /* EndPoints */
+
+app.get('/' , (req,res) => {
+  fs.readFile('./endpoints.json', 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error al leer el archivo JSON', err);
+      res.status(500).json({ error: 'Error interno del servidor' });
+      return;
+    }
+    res.json(JSON.parse(data));
+  });
+})
 
 app.get('/v1/autos',  async(req,res) => {
   const { nombreAuto } = req.query;
