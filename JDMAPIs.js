@@ -59,7 +59,7 @@ app.get('/v1/autos/:id', async (req,res) => {
     const  autoId  = req.params.id;
     try {
       const { data: autos, error } = await supabase
-        .from('autos')
+        .from('cohes')
         .select('*')
         .eq('autoid', autoId)
   
