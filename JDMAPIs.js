@@ -61,7 +61,7 @@ app.get('/v1/autos/:id', async (req,res) => {
       const { data: autos, error } = await supabase
         .from('coches')
         .select('*')
-        .eq('autoid', autoId)
+        .eq('id', autoId)
   
       if (error) {
         console.error('Error al realizar la consulta:', error);
