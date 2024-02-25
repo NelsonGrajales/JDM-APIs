@@ -4,10 +4,11 @@
 
 ## API Reference
 
-#### Get todos los autos
+#### Obtener todos los autos
 
 ```http
   GET /v1/autos
+
 ```
 
 #### Get auto por modelo
@@ -36,7 +37,7 @@
   GET /v1/marcas
 ```
 
-- no requiere parametros
+- No requiere parámetros
 
 #### Get todos los motores
 
@@ -44,7 +45,7 @@
     GET /v1/motores
 ```
 
-- no requiere parametros
+- No requiere parámetros
 
 ## Tech Stack
 
